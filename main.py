@@ -19,6 +19,7 @@ analyze = Analysis()
 def init():
     vacancy_links_filename = 'vacancy_links.json'
     vacancy_data_filename = 'vacancy_data.json'
+    analysys_vacancy_data_filename = 'analysys_vacancy_data.txt'
 
     # -------------ПАРСИНГ ССЫЛОК НА ВАКАНСИИ----------------------------------
     # links = parse.vacancy_links("QA")
@@ -31,8 +32,14 @@ def init():
     # parse.vacancy_data(vacancy_links_filename, vacancy_data_filename)
 
     # -------------АНАЛИЗ ДАННЫХ ИЗ ВАКАНСИИ----------------------------------
+    # for k, v in analyze.get_skills(vacancy_data_filename, 0.01).items():
+    #     tag = {k: v}
+    #     crud.append_to_json(analysys_vacancy_data_filename, tag)
+
     for k, v in analyze.get_skills(vacancy_data_filename, 0.01).items():
         print(k, v)
+
+
 
     return
 
