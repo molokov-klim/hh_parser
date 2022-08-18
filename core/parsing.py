@@ -1,4 +1,3 @@
-from os import name
 import requests
 import fake_useragent
 from bs4 import BeautifulSoup
@@ -9,11 +8,11 @@ import logging
 from config import HH_HEADERS
 from core.crud_files import CRUD
 
-crud = CRUD()
-
 
 class ParseHeadHunter:
     useragent = fake_useragent.UserAgent()
+    session = requests.Session()
+    crud = CRUD()
 
     # принимает string "наименование профессии" (ТОЛЬКО ЛАТИНИЦА - HH переводит в транслит), возвращает list со ссылками на вакансии
     # ["link1", "link2", "link3"]
@@ -46,7 +45,7 @@ class ParseHeadHunter:
                             link = a.attrs["href"]
                             if link.__contains__("https://hh.ru/vacancy/"):
                                 links.append(link)
-                    #print(links)
+                    # print(links)
                 except Exception as e:
                     logging.error(e)
                 print("page: ", page)
@@ -66,10 +65,10 @@ class ParseHeadHunter:
     # },]
     def vacancy_data(self, filename_input, filename_output):
         try:
-            crud.delete(filename_output)
+            self.crud.delete(filename_output)
         except:
             pass
-        data = json.loads(crud.read(filename_input))
+        data = json.loads(self.crud.read(filename_input))
         print(len(data))
         for link in data:
             print(data.index(link))
@@ -109,6 +108,75 @@ class ParseHeadHunter:
                 "tags": tags,
                 "link": link,
             }
-            crud.append_to_json(filename_output, resume)
+            self.crud.append_to_json(filename_output, resume)
             time.sleep(1)
         return True
+
+    def who_am_i(self):
+        url = 'https://hh.ru/applicant/settings?from=header_new&hhtmFromLabel=header_new&hhtmFrom=main'
+
+        responce = self.session.get(url=url, headers=HH_HEADERS)
+
+        soup = BeautifulSoup(responce.content, "lxml")
+        my_name = soup.find("div", attrs={"data-template-name": "fio"}).text
+
+        return my_name
+
+    def resume_vacancy_links(self):
+        links = []
+        url = 'https://hh.ru/applicant/resumes?hhtmFromLabel=header&hhtmFrom=settings'
+        responce = self.session.get(url=url, headers=HH_HEADERS)
+        soup = BeautifulSoup(responce.content, "lxml")
+        url2 = "https://hh.ru" + \
+               soup.find("div", attrs={"class": "applicant-resumes-recommendations-button"}).find("a").attrs["href"]
+        print(url2)
+        responce2 = self.session.get(url=url2, headers=HH_HEADERS)
+        soup = BeautifulSoup(responce2.content, "lxml")
+        page_count = int(
+            soup.find("div", attrs={"class": "pager"}).find_all("span", recursive=False)[-1].find("a").find(
+                "span").text)
+        print("page_count: ", page_count)
+        for page in range(page_count):
+            try:
+                res = requests.get(
+                    url=f"https://hh.ru/search/vacancy?resume=fc897f92ff0b2ca48e0039ed1f7a4959584a44&from=resumelist&page={page}&hhtmFrom=resume_list",
+                    headers=HH_HEADERS)
+                if res.status_code == 200:
+                    soup = BeautifulSoup(res.content, "lxml")
+                    for a in soup.find_all("a", attrs={
+                        "class": "bloko-link"}):
+                        link = a.attrs["href"]
+                        if link.__contains__("https://hh.ru/vacancy/"):
+                            links.append(link)
+
+
+
+            except Exception as e:
+                logging.error(e)
+            print("page: ", page)
+            # print("links:", links)
+            time.sleep(1)
+
+        return links
+
+    def respond_vacancy(self, link):
+        responce = self.session.get(url=link, headers=HH_HEADERS)
+        soup = BeautifulSoup(responce.content, "lxml")
+        try:
+            href = "https://hh.ru" + soup.find("a", attrs={"data-qa": "vacancy-response-link-top"}).attrs["href"]
+            print(soup.find("a", attrs={"data-qa": "vacancy-response-link-top"}).text)
+        except:
+            href = "https://hh.ru" + soup.find("a", attrs={"data-qa": "vacancy-response-link-view-topic"}).attrs["href"]
+            print(soup.find("a", attrs={"data-qa": "vacancy-response-link-view-topic"}).text)
+        print(href)
+
+        # self.mech.set_header('cookie', HH_HEADERS['cookie'])
+        # print(type(HH_HEADERS['cookie']))
+
+        respond = self.session.get(url=href, headers=HH_HEADERS, allow_redirects=True)
+        print(respond)
+
+
+        return
+
+
