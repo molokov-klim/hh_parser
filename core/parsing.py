@@ -159,24 +159,6 @@ class ParseHeadHunter:
 
         return links
 
-    def respond_vacancy(self, link):
-        responce = self.session.get(url=link, headers=HH_HEADERS)
-        soup = BeautifulSoup(responce.content, "lxml")
-        try:
-            href = "https://hh.ru" + soup.find("a", attrs={"data-qa": "vacancy-response-link-top"}).attrs["href"]
-            print(soup.find("a", attrs={"data-qa": "vacancy-response-link-top"}).text)
-        except:
-            href = "https://hh.ru" + soup.find("a", attrs={"data-qa": "vacancy-response-link-view-topic"}).attrs["href"]
-            print(soup.find("a", attrs={"data-qa": "vacancy-response-link-view-topic"}).text)
-        print(href)
 
-        # self.mech.set_header('cookie', HH_HEADERS['cookie'])
-        # print(type(HH_HEADERS['cookie']))
-
-        respond = self.session.get(url=href, headers=HH_HEADERS, allow_redirects=True)
-        print(respond)
-
-
-        return
 
 

@@ -2,5 +2,8 @@ requests
 beautifulsoup4
 lxml
 fake_useragent
+selenium
+wget
+webdriver-manager
 
 

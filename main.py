@@ -33,11 +33,11 @@ def init():
     # parse.vacancy_data(vacancy_links_filename, vacancy_data_filename)
 
     # -------------АНАЛИЗ ДАННЫХ ИЗ ВАКАНСИИ----------------------------------
-    tag = analyze.analyze_vacancy_data(vacancy_data_filename, 0.01)
-    crud.update(analysys_vacancy_data_filename, tag)
+    # tag = analyze.analyze_vacancy_data(vacancy_data_filename, 0.01)
+    # crud.update(analysys_vacancy_data_filename, tag)
 
     # -------------WHO AM I----------------------------------
-    print("me: ", parse.who_am_i())
+    #print("me: ", parse.who_am_i())
 
     # -------------ПАРСИНГ ССЫЛОК НА ВАКАНСИИ ПО РЕКОММЕНДАЦИЯМ К РЕЗЮМЕ----------------------------------
     # links = parse.resume_vacancy_links()
@@ -48,7 +48,7 @@ def init():
     #     print("File already exist")
 
     # -------------ОТКЛИК НА ВАКАНСИЮ----------------------------------
-    parse.respond_vacancy("https://hh.ru/vacancy/68451749?from=vacancy_search_list&hhtmFrom=vacancy_search_list")
+
 
 
 
